@@ -1,0 +1,17 @@
+#Comment Test
+println("Hello World!")
+func oopify(prefix)
+return prefix + "oop"
+end
+func join(elements,seperator)
+	let result=""
+	let l=len(elements)
+	for i=0 to l then
+		let result = result+elements/i
+		if i != l-1 then let result=result+seperator
+	end
+return result
+end
+for i=0 to 5 then
+println(join([oopify("l"),oopify("sp")],", "))
+end
