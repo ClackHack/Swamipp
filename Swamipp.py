@@ -1,4 +1,4 @@
-import random
+import random,time
 #Tokens
 TT_INT="TT_INT"
 TT_FLOAT="FLOAT"
@@ -460,7 +460,7 @@ class Parser:
         res=self.statements()
         if not res.error and self.current_tok.type != TT_EOF:
             return res.failure(InvalidSyntaxError(self.current_tok.pos_start,
-            self.current_tok.pos_end,"Expected operator..."))
+            self.current_tok.pos_end,"Expected operator,')',or, and, not, got EOF"))
         return res
     def statements(self):
         res= ParseResult()
@@ -1020,7 +1020,7 @@ class Parser:
             if res.error:
                 #print(res.error)
                 return res
-                return res.success(FuncDefNode(var_name_tok,arg_name_toks,node_to_return,True))
+            return res.success(FuncDefNode(var_name_tok,arg_name_toks,node_to_return,True))
         if self.current_tok.type!=TT_NEWLINE:
             #print("error")
             return res.failure(InvalidSyntaxError(self.current_tok.pos_start,self.current_tok.pos_end,
@@ -1348,11 +1348,11 @@ class BuiltInFunction(BaseFunction):
     execute_string.arg_names=["value"]
     def execute_list(self,exec_ctx):
         try:
-            r=int(exec_ctx.symbol_table.get("value").value)
+            r=str(exec_ctx.symbol_table.get("value").value)
         except:
             return RTResult().failure(RTError(self.pos_start,self.pos_end
             ,"Cannot convert to list",exec_ctx))
-        return RTResult().success(List(r))
+        return RTResult().success(List(list(r)))
     execute_list.arg_names=["value"]
     def execute_is_number(self,exec_ctx):
         r=isinstance(exec_ctx.symbol_table.get("value"),Number)
@@ -1442,8 +1442,15 @@ class BuiltInFunction(BaseFunction):
             return RTResult().success(Number(random.randint(lower.value,upper.value)))
         except:
             return RTResult().failure(RTError(self.pos_start,self.pos_end,"ValueError",exec_ctx))
-
+    def execute_sleep(self,exec_ctx):
+        value = exec_ctx.symbol_table.get("value")
+        if not isinstance(value,Number):
+            return  RTResult().failure(RTError(self.pos_start,self.pos_end,"expected Number",exec_ctx))
+        time.sleep(value.value)
+        return RTResult().success(Number.null)
+    execute_sleep.arg_names=["value"]
     execute_random.arg_names=["lower","upper"]
+
     def copy(self):
         copy=BuiltInFunction(self.name)
         copy.set_context(self.context)
@@ -1469,6 +1476,7 @@ BuiltInFunction.pop=BuiltInFunction("pop")
 BuiltInFunction.import_=BuiltInFunction("import")
 BuiltInFunction.len=BuiltInFunction("len")
 BuiltInFunction.random=BuiltInFunction("random")
+BuiltInFunction.sleep=BuiltInFunction("sleep")
 class String(Value):
     def __init__(self,value):
         self.value=value
@@ -1863,7 +1871,7 @@ global_symbol_table.set("print_ret",BuiltInFunction.print_ret)
 global_symbol_table.set("input",BuiltInFunction.input)
 global_symbol_table.set("int",BuiltInFunction.int)
 global_symbol_table.set("float",BuiltInFunction.float)
-#global_symbol_table.set("list",BuiltInFunction.list)
+global_symbol_table.set("list",BuiltInFunction.list)
 global_symbol_table.set("string",BuiltInFunction.string)
 global_symbol_table.set("is_number",BuiltInFunction.is_number)
 global_symbol_table.set("is_string",BuiltInFunction.is_string)
@@ -1877,6 +1885,7 @@ global_symbol_table.set("println",BuiltInFunction.println)
 global_symbol_table.set("import",BuiltInFunction.import_)
 global_symbol_table.set("len",BuiltInFunction.len)
 global_symbol_table.set("randint",BuiltInFunction.random)
+global_symbol_table.set("sleep",BuiltInFunction.sleep)
 def run(fn, text):
     lexer=Lexer(fn, text)
     tokens,error=lexer.make_tokens()

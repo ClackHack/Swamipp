@@ -1,0 +1,19 @@
+let clay=0;let cw=0;let cy=0;
+let e = false
+while true then
+let e = false
+print(". >")
+let command=input()
+if command == "" then break
+if command=="clay" then 
+let clay = clay+1
+elif command=="cw" then 
+let cw = cw+1
+elif command=="cy" then 
+let cy=cy+1
+else 
+println("Invalid Command"); continue
+end
+#end
+println([clay,cw,cy])
+end
