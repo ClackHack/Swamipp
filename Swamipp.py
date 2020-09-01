@@ -1404,6 +1404,12 @@ class BuiltInFunction(BaseFunction):
             "index out of range",exec_ctx))
         return RTResult().success(element)
     execute_pop.arg_names=["l","index"]
+    def execute_copy(self,exec_ctx):
+        value=exec_ctx.symbol_table.get("value")
+        if not isinstance(value,List):
+            return RTResult().failure(RTError(self.pos_start,self.pos_end,"Expected Number as second argument",exec_ctx))
+        return RTResult().success(List(value.elements*1))
+    execute_copy.arg_names=["value"]
     def execute_import(self,exec_ctx):
         file = exec_ctx.symbol_table.get("file")
         if not isinstance(file,String):
@@ -1477,6 +1483,7 @@ BuiltInFunction.import_=BuiltInFunction("import")
 BuiltInFunction.len=BuiltInFunction("len")
 BuiltInFunction.random=BuiltInFunction("random")
 BuiltInFunction.sleep=BuiltInFunction("sleep")
+BuiltInFunction.copy_=BuiltInFunction("copy")
 class String(Value):
     def __init__(self,value):
         self.value=value
@@ -1886,6 +1893,7 @@ global_symbol_table.set("import",BuiltInFunction.import_)
 global_symbol_table.set("len",BuiltInFunction.len)
 global_symbol_table.set("randint",BuiltInFunction.random)
 global_symbol_table.set("sleep",BuiltInFunction.sleep)
+global_symbol_table.set("copy",BuiltInFunction.copy_)
 def run(fn, text):
     lexer=Lexer(fn, text)
     tokens,error=lexer.make_tokens()

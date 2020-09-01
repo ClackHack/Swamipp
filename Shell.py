@@ -3,7 +3,7 @@ import os,datetime
 import _thread
 def begin(s,r):
   return s[:len(r)]==r
-print("Swami++ 1.1, type credits for more info")
+print("Swami++ 1.2, type credits for more info")
 directory="Programs/"
 def notepad(f):
     os.system("notepad.exe "+directory+f)

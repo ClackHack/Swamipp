@@ -1,0 +1,12 @@
+print("How many Numbers: ")
+let count=input()
+println("")
+let a=1
+let b=1
+let temp=1
+for i=0 to count then
+let temp=a
+let a=a+b
+let b=temp
+println(b)
+end
