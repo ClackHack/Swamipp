@@ -1,0 +1,32 @@
+func trunc(value)
+let t=int(value)
+if t > value then let t= t-1
+return t
+end
+func roman(num)
+  let result=""
+  let vals=[1000,500,100,50,10,5,1]
+  let chars = ["M","D","C","L","X","V","I"]
+  while num != 0 then
+    for i=0 to len(vals) then
+      #println(vals/i)
+      if vals /i <= num then
+        let temp = trunc(num/(vals/i))
+        if temp==4 then
+	  let result=result+chars/i+chars/(i-1)
+	  let num = num%(vals/i)
+	elif trunc(num/(vals/(i+1)))==9 then
+	  let result = result + (chars/(i+1)) +(chars/(i-1))
+	  let num=num%(vals/(i+1))
+	else
+  	  let result = result+(chars/i)*temp
+	  let num=num%(vals/i)
+	end
+        break
+      end
+      #if num !=0 then break
+    end
+    if num ==0 then break
+  end
+  return result
+end

@@ -1,0 +1,9 @@
+func choice(l)
+  let position = randint(0,len(l)-1)
+  return l/position
+end
+func randfloat(lower,upper)
+let dif = upper-lower
+let temp=randint(0,dif*10^9)/(10^9)
+return lower + temp
+end
