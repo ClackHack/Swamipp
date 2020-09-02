@@ -1253,6 +1253,7 @@ class BaseFunction(Value):
         for i in range(len(args)):
             arg_name=arg_names[i]
             arg_value=args[i]
+            #print("set: ",type(arg_value),type(arg_name))
             arg_value.set_context(exec_ctx)
             exec_ctx.symbol_table.set(arg_name,arg_value)
     def check_and_populate_args(self,arg_names,args,exec_ctx):
@@ -1357,7 +1358,10 @@ class BuiltInFunction(BaseFunction):
         except:
             return RTResult().failure(RTError(self.pos_start,self.pos_end
             ,"Cannot convert to list",exec_ctx))
-        return RTResult().success(List(list(r)))
+        re=[]
+        for i in r:
+            re.append(String(i))
+        return RTResult().success(List(list(re)))
     execute_list.arg_names=["value"]
     def execute_is_number(self,exec_ctx):
         r=isinstance(exec_ctx.symbol_table.get("value"),Number)
@@ -1624,7 +1628,7 @@ class Interpreter:
         #print(value,type(value))
         if value==None:
             return res.failure(RTError(node.pos_start,node.pos_end,f"Variable name '{var_name}' is not defined",context))
-        #print(type(value))
+        #print(value,type(value))
         value=value.copy().set_pos(node.pos_start,node.pos_end).set_context(context)
         #print(value,type(value))
         return res.success(value)

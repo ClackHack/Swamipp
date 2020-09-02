@@ -33,6 +33,8 @@ while 1:
                 print(error.toString(),sep="\n")
             else:
                 print(f"\nExecuted with zero errors in {(x-y).total_seconds()} seconds")
+        except KeyboardInterrupt:
+          continue
         except Exception as e:
             print("Could not find file, or fatal error...",e)
     elif command=="repl":
@@ -42,7 +44,10 @@ while 1:
                 continue
             if text=="exit":
                 break
-            result,error=Swami.run("<Shell>",text)
+            try:
+              result,error=Swami.run("<Shell>",text)
+            except KeyboardInterrupt:
+              continue
             if error:
                 print(error.toString())
             elif result:
