@@ -1,0 +1,31 @@
+func dictCreate() : [[],[]]
+func dictAdd(dict,key,value)
+append(dict/0,key)
+append(dict/1,value)
+return dict
+end
+func dictGet(dict,key)
+if len(dict/0) != len(dict/1) then
+println("Dictionary keys and values unequal")
+return null
+end
+for i=0 to len(dict/0) then
+if (dict/0)/i == key then
+return (dict/1)/i
+end
+end
+return -1
+end
+func dictPop(dict,key)
+if len(dict/0) != len(dict/1) then
+println("Dictionary keys and values unequal")
+return null
+end
+for i=0 to len(dict/0) then
+if (dict/0)/i == key then
+pop(dict/0,i)
+return pop((dict/1),i)
+end
+end
+return -1
+end

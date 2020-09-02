@@ -1,0 +1,35 @@
+func trunc(value)
+let t=int(value)
+if t > value then 
+let t= t-1
+end
+return t
+end
+func max(l)
+if not is_list(l) then
+println("Expected List")
+return null
+end
+let m = l/0
+for i each l then
+if i > m then let m=i
+end
+return i
+end
+func min(l)
+if not is_list(l) then
+println("Expected List")
+return null
+end
+let m = l/0
+for i each l then
+if i < m then let m=i
+end
+return i
+end
+func in(l,value)
+for i each l then
+if value==i then return true
+end
+return false
+end

@@ -437,7 +437,7 @@ class ParseResult:
         self.node=node
         return self
     def failure(self,error):
-        if not self.error or self.advance_count==0:
+        if not self.error: # or self.advance_count==0:
             self.error=error
         return self
 class Parser:
@@ -459,8 +459,9 @@ class Parser:
     def parse(self):
         res=self.statements()
         if not res.error and self.current_tok.type != TT_EOF:
+            #print(self.current_tok)
             return res.failure(InvalidSyntaxError(self.current_tok.pos_start,
-            self.current_tok.pos_end,"Expected operator,')',or, and, not, got EOF"))
+            self.current_tok.pos_end,"Unexpected token"))
         return res
     def statements(self):
         res= ParseResult()
@@ -486,7 +487,8 @@ class Parser:
                 break
             statement=res.try_register(self.statement())
             if not statement:
-                self.reverse(res.to_reverse_count)
+                #print(res.error)
+                #self.reverse(res.to_reverse_count)
                 more_statements=False
                 continue
             statements.append(statement)
@@ -511,8 +513,7 @@ class Parser:
             return res.success(BreakNode(pos_start,self.current_tok.pos_end))
         expr=res.register(self.expr())
         if res.error:
-            return res.failure(InvalidSyntaxError(self.current_tok.pos_start,self.current_tok.pos_end,
-            "Expected ')',let, if, for, while, func, int, float, identifier,  [, return, continue, break"))
+            return res #res.failure(InvalidSyntaxError(self.current_tok.pos_start,self.current_tok.pos_end,"Expected ')',let, if, for, while, func, int, float, identifier,  [, return, continue, break"))
         return res.success(expr)
     def call(self):
         res=ParseResult()
@@ -566,6 +567,7 @@ class Parser:
         elif self.current_tok.matches(TT_KEYWORD,"if"):
             ifexpr=res.register(self.if_expr())
             if res.error:
+                #print(res.error.toString())
                 return res
             #print(res.node)
             return res.success(ifexpr)
@@ -577,6 +579,7 @@ class Parser:
         elif self.current_tok.matches(TT_KEYWORD,"while"):
             forexpr=res.register(self.while_expr())
             if res.error:
+                #print(res.error.toString())
                 return res
             return res.success(forexpr)
         elif self.current_tok.matches(TT_KEYWORD,"do"):
@@ -588,6 +591,7 @@ class Parser:
         elif self.current_tok.matches(TT_KEYWORD,"func"):
             func = res.register(self.func_def())
             if res.error:
+                #print(res.error.toString())
                 return res
             return res.success(func)
         elif self.current_tok.type==TT_LSQUARE:
@@ -1029,6 +1033,7 @@ class Parser:
         self.advance()
         body=res.register(self.statements())
         if res.error:
+            #print(res.error.toString())
             return res
         if not self.current_tok.matches(TT_KEYWORD,"end"):
             return res.failure(InvalidSyntaxError(self.current_tok.pos_start,self.current_tok.pos_end,
@@ -1899,6 +1904,7 @@ def run(fn, text):
     tokens,error=lexer.make_tokens()
     if error:
         return None,error
+    #print(tokens[-10:])
     parser=Parser(tokens)
     ast=parser.parse()
     if ast.error:
