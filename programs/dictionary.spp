@@ -1,31 +1,29 @@
-func dictCreate() : [[],[]]
-func dictAdd(dict,key,value)
-append(dict/0,key)
-append(dict/1,value)
-return dict
+class dictionary()
+let keys=[]
+let values=[]
+func dictAdd(key,value)
+if is_string(key) then
+append(keys,key)
+append(values,value)
+else
+println("Expected string as key")
 end
-func dictGet(dict,key)
-if len(dict/0) != len(dict/1) then
-println("Dictionary keys and values unequal")
-return null
 end
-for i=0 to len(dict/0) then
-if (dict/0)/i == key then
-return (dict/1)/i
+func dictGet(key)
+for i=0 to len(keys/0) then
+if keys/i == key then
+return values/i
+end
+end
+return -1
+end
+func dictPop(key)
+for i=0 to len(keys/0) then
+if keys/i == key then
+pop(keys,i)
+return pop(values,i)
 end
 end
 return -1
 end
-func dictPop(dict,key)
-if len(dict/0) != len(dict/1) then
-println("Dictionary keys and values unequal")
-return null
-end
-for i=0 to len(dict/0) then
-if (dict/0)/i == key then
-pop(dict/0,i)
-return pop((dict/1),i)
-end
-end
-return -1
 end
