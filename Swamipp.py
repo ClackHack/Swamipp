@@ -342,6 +342,13 @@ class VarAssignNode:
 		self.value_node=node
 		self.pos_start=tok.pos_start
 		self.pos_end=tok.pos_end
+class ClassAssignNode:
+	def __init__(self,tok,child,node):
+		self.var=tok
+		self.child=child
+		self.value_node=node
+		self.pos_start=tok.pos_start
+		self.pos_end=tok.pos_end
 class IfNode:
 	def __init__(self,cases,_else):
 		self.cases=cases
@@ -678,6 +685,26 @@ class Parser:
 			var_name=self.current_tok
 			res.register_advance()
 			self.advance()
+			if self.current_tok.type==TT_DOT:
+				res.register_advance()
+				self.advance()
+				if self.current_tok.type!=TT_STRING:
+					return res.failure(InvalidSyntaxError(self.current_tok.pos_start,
+					self.current_tok.pos_end,"Expected String"))
+				child=res.register(self.atom())
+				if res.error:
+					return res
+				#self.advance()
+				#res.register_advance()
+				if self.current_tok.type != TT_EQ:
+					return res.failure(InvalidSyntaxError(self.current_tok.pos_start,
+					self.current_tok.pos_end,"Expected '='"))
+				res.register_advance()
+				self.advance()
+				expr = res.register(self.expr())
+				if res.error:
+					return res
+				return res.success(ClassAssignNode(var_name,child,expr))
 			if self.current_tok.type != TT_EQ:
 				return res.failure(InvalidSyntaxError(self.current_tok.pos_start,
 				self.current_tok.pos_end,"Expected '='"))
@@ -1412,6 +1439,16 @@ class Class(BaseFunction):
 			f"Could not find {other.value}",self.context)
 
 		return ret,None
+	def set(self,other,value):
+		res = RTResult()
+		if not isinstance(other,String):
+			return None,self.illegal_operation(other)
+		try:
+			self.exec_ctx
+		except:
+			return None,RTError(self.pos_start,self.pos_end,
+			f"Class has not been initialized yet",self.context)
+		self.exec_ctx.symbol_table.set(other.value,value)
 	def copy(self):
 		copy=Class(self.name,self.body_node,self.arg_names)
 		copy.set_pos(self.pos_start,self.pos_end)
@@ -1911,6 +1948,25 @@ class Interpreter:
 			return res
 		context.symbol_table.set(var_name,value)
 		return res.success(value)
+	def visit_ClassAssignNode(self,node,context):
+		res=RTResult()
+		class_=context.symbol_table.get(node.var.value)
+		#if res.should_return():
+			#return res
+		if not isinstance(class_,Class):
+			return res.failure(RTError(node.pos_start,node.pos_end,f"Expected Class",context))
+		child = res.register(self.visit(node.child,node))
+		if res.should_return():
+			return res
+
+
+		if res.should_return():
+			return res
+		value = res.register(self.visit(node.value_node,context))
+		if res.should_return():
+			return res
+		class_.set(child,value)
+		return res.success(Number.null)
 	def visit_NumberNode(self,node,context):
 		#print("Number",node.tok.value)
 		result= Number(node.tok.value).set_context(context).set_pos(node.pos_start,node.pos_end)
