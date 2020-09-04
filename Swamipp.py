@@ -652,13 +652,13 @@ class Parser:
 			factor=res.register(self.factor())
 			if res.error:return res
 			return res.success(UnOpNode(tok,factor))
-		return self.power()
+		return self.child()
 	def term(self):
 		return self.binOp(self.factor,(TT_MUL,TT_DIV,TT_MOD))
 	def arith_expr(self):
-		return self.binOp(self.child,(TT_PLUS,TT_MINUS))
+		return self.binOp(self.term,(TT_PLUS,TT_MINUS))
 	def child(self):
-		return self.binOp(self.term,(TT_DOT))
+		return self.binOp(self.power,(TT_DOT))
 	def comp_expr(self):
 		res = ParseResult()
 		if self.current_tok.matches(TT_KEYWORD,"not"):
