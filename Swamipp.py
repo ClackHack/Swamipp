@@ -1441,7 +1441,7 @@ class Class(BaseFunction):
 		if other.var_name_tok.type != TT_IDENTIFIER:
 			return None,RTError(self.pos_start,self.pos_end,
 			f"Expected Identifier",self.context)
-		ret=self.exec_ctx.symbol_table.get(other.var_name_tok.value)
+		ret=self.exec_ctx.symbol_table.get(other.var_name_tok.value,True)
 		if ret==None:
 			return None,RTError(self.pos_start,self.pos_end,
 			f"Could not find {other.var_name_tok.value}",self.context)
@@ -1803,9 +1803,9 @@ class SymbolTable:
 	def __init__(self,parent=None):
 		self.symbols={}
 		self.parent=parent
-	def get(self,name):
+	def get(self,name,immediate=False):
 		value=self.symbols.get(name,None)
-		if value==None and self.parent != None:
+		if value==None and self.parent != None and not immediate:
 			return self.parent.get(name)
 		return value
 	def set(self,name,value):
