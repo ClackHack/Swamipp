@@ -688,14 +688,14 @@ class Parser:
 			if self.current_tok.type==TT_DOT:
 				res.register_advance()
 				self.advance()
-				if self.current_tok.type!=TT_STRING:
+				if self.current_tok.type!=TT_IDENTIFIER:
 					return res.failure(InvalidSyntaxError(self.current_tok.pos_start,
-					self.current_tok.pos_end,"Expected String"))
-				child=res.register(self.atom())
+					self.current_tok.pos_end,"Expected Identifier"))
+				child=VarAccessNode(self.current_tok)
 				if res.error:
 					return res
-				#self.advance()
-				#res.register_advance()
+				self.advance()
+				res.register_advance()
 				if self.current_tok.type != TT_EQ:
 					return res.failure(InvalidSyntaxError(self.current_tok.pos_start,
 					self.current_tok.pos_end,"Expected '='"))
@@ -704,6 +704,7 @@ class Parser:
 				expr = res.register(self.expr())
 				if res.error:
 					return res
+				#print(type(child),"lex")
 				return res.success(ClassAssignNode(var_name,child,expr))
 			if self.current_tok.type != TT_EQ:
 				return res.failure(InvalidSyntaxError(self.current_tok.pos_start,
@@ -1138,7 +1139,7 @@ class Parser:
 		if res.error:
 			return res
 		if not self.current_tok.matches(TT_KEYWORD,"end"):
-			print(self.current_tok)
+			#print(self.current_tok)
 			return res.failure(InvalidSyntaxError(self.current_tok.pos_start,self.current_tok.pos_end,
 			"Class Expected 'end'"))
 		self.advance()
@@ -1225,6 +1226,8 @@ class Value:
 		return None,self.illegal_operation(other)
 	def ored_by(self,other):
 		return None,self.illegal_operation(other)
+	def dotted_to(self,other):
+		return None, self.illegal_operation(other)
 	def notted(self):
 		return None,self.illegal_operation(other)
 	def copy(self):
@@ -1425,30 +1428,40 @@ class Class(BaseFunction):
 
 		return res.success(self)
 	def dotted_to(self,other):
+		#print("called")
 		res = RTResult()
-		if not isinstance(other,String):
+		#print(type(other))
+		if not isinstance(other,VarAccessNode):
 			return None,self.illegal_operation(other)
 		try:
 			self.exec_ctx
 		except:
 			return None,RTError(self.pos_start,self.pos_end,
 			f"Class has not been initialized yet",self.context)
-		ret=self.exec_ctx.symbol_table.get(other.value)
+		if other.var_name_tok.type != TT_IDENTIFIER:
+			return None,RTError(self.pos_start,self.pos_end,
+			f"Expected Identifier",self.context)
+		ret=self.exec_ctx.symbol_table.get(other.var_name_tok.value)
 		if ret==None:
 			return None,RTError(self.pos_start,self.pos_end,
-			f"Could not find {other.value}",self.context)
+			f"Could not find {other.var_name_tok.value}",self.context)
 
 		return ret,None
 	def set(self,other,value):
 		res = RTResult()
-		if not isinstance(other,String):
+		#print(type(other))
+		if not isinstance(other,VarAccessNode):
 			return None,self.illegal_operation(other)
 		try:
 			self.exec_ctx
 		except:
 			return None,RTError(self.pos_start,self.pos_end,
 			f"Class has not been initialized yet",self.context)
-		self.exec_ctx.symbol_table.set(other.value,value)
+		if other.var_name_tok.type != TT_IDENTIFIER:
+			return None,RTError(self.pos_start,self.pos_end,
+			f"Expected Identifier",self.context)
+		self.exec_ctx.symbol_table.set(other.var_name_tok.value,value)
+		return value, None
 	def copy(self):
 		copy=Class(self.name,self.body_node,self.arg_names)
 		copy.set_pos(self.pos_start,self.pos_end)
@@ -1955,10 +1968,10 @@ class Interpreter:
 			#return res
 		if not isinstance(class_,Class):
 			return res.failure(RTError(node.pos_start,node.pos_end,f"Expected Class",context))
-		child = res.register(self.visit(node.child,node))
-		if res.should_return():
-			return res
-
+		child = node.child
+		#if res.should_return():
+			#return res
+		#print(child)
 
 		if res.should_return():
 			return res
@@ -1966,7 +1979,7 @@ class Interpreter:
 		if res.should_return():
 			return res
 		class_.set(child,value)
-		return res.success(Number.null)
+		return res.success(value)
 	def visit_NumberNode(self,node,context):
 		#print("Number",node.tok.value)
 		result= Number(node.tok.value).set_context(context).set_pos(node.pos_start,node.pos_end)
@@ -1990,9 +2003,12 @@ class Interpreter:
 		left=res.register(self.visit(node.left,context))
 		if res.should_return():
 			return res
-		right=res.register(self.visit(node.right,context))
-		if res.should_return():
-			return res
+		if node.op.type != TT_DOT:
+			right=res.register(self.visit(node.right,context))
+			if res.should_return():
+				 return res
+		else:
+			right=node.right
 		#print(type(left.value),right,node.op)
 		if node.op.type==TT_PLUS:
 			#print("here",type(left),type(node.left))
@@ -2024,6 +2040,12 @@ class Interpreter:
 		elif node.op.matches(TT_KEYWORD,"or"):
 			result,error=left.ored_by(right)
 		elif node.op.type==TT_DOT:
+			#if not isinstance(node.left,Class):
+				#print(type(node.left))
+				#result,error = None,RTError(node.pos_start,node.pos_end,f"Expected Class",context)
+			#elif not isinstance(node.right,VarAccessNode):
+			#	result,error = None,RTError(node.pos_start,node.pos_end,f"Expected Identifier",context)
+			#else:
 			result,error=left.dotted_to(right)
 		if error:
 			return res.failure(error)
