@@ -1,7 +1,7 @@
 class dictionary()
 let keys=[]
 let values=[]
-func dictAdd(key,value)
+func add(key,value)
 if is_string(key) then
 append(keys,key)
 append(values,value)
@@ -9,7 +9,7 @@ else
 println("Expected string as key")
 end
 end
-func dictGet(key)
+func get(key)
 for i=0 to len(keys/0) then
 if keys/i == key then
 return values/i
@@ -17,7 +17,7 @@ end
 end
 return -1
 end
-func dictPop(key)
+func pop(key)
 for i=0 to len(keys/0) then
 if keys/i == key then
 pop(keys,i)
