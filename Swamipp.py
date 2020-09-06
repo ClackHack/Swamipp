@@ -133,6 +133,23 @@ class Token:
 		if self.value: return f"{self.type}:{self.value}"
 		return f"{self.type}"
 class Lexer:
+	token_lookup = {
+		"\n": TT_NEWLINE,
+		";": TT_NEWLINE,
+		"+": TT_PLUS,
+		"-": TT_MINUS,
+		".": TT_DOT,
+		"*": TT_MUL,
+		"/": TT_DIV,
+		"%": TT_MOD,
+		"^": TT_POW,
+		"(": TT_LPAREN,
+		")": TT_RPAREN,
+		"[": TT_LSQUARE,
+		"]": TT_RSQUARE,
+		",": TT_COMMA,
+		":": TT_ARROW
+	}
 	def __init__(self,fn,text):
 		self.text=text
 		self.fn =fn
@@ -154,50 +171,11 @@ class Lexer:
 			elif self.current_char=='"':
 				tokens.append(self.make_string())
 				self.advance()
-			elif self.current_char in ";\n":
-				tokens.append(Token(TT_NEWLINE,pos_start=self.pos))
-				self.advance()
-			elif self.current_char=="+":
-				tokens.append(Token(TT_PLUS,pos_start=self.pos))
+			elif self.current_char in token_lookup:
+				tokens.append(Token(token_lookup[self.current_char], pos_start=self.pos))
 				self.advance()
 			elif self.current_char=="#":
 				self.skip_comment()
-			elif self.current_char=="-":
-				tokens.append(Token(TT_MINUS,pos_start=self.pos))
-				self.advance()
-			elif self.current_char==".":
-				tokens.append(Token(TT_DOT,pos_start=self.pos))
-				self.advance()
-			elif self.current_char=="*":
-				tokens.append(Token(TT_MUL,pos_start=self.pos))
-				self.advance()
-			elif self.current_char=="/":
-				tokens.append(Token(TT_DIV,pos_start=self.pos))
-				self.advance()
-			elif self.current_char=="%":
-				tokens.append(Token(TT_MOD,pos_start=self.pos))
-				self.advance()
-			elif self.current_char=="^":
-				tokens.append(Token(TT_POW,pos_start=self.pos))
-				self.advance()
-			elif self.current_char=="(":
-				tokens.append(Token(TT_LPAREN,pos_start=self.pos))
-				self.advance()
-			elif self.current_char==")":
-				tokens.append(Token(TT_RPAREN,pos_start=self.pos))
-				self.advance()
-			elif self.current_char=="[":
-				tokens.append(Token(TT_LSQUARE,pos_start=self.pos))
-				self.advance()
-			elif self.current_char=="]":
-				tokens.append(Token(TT_RSQUARE,pos_start=self.pos))
-				self.advance()
-			elif self.current_char==",":
-				tokens.append(Token(TT_COMMA,pos_start=self.pos))
-				self.advance()
-			elif self.current_char==":":
-				tokens.append(Token(TT_ARROW,pos_start=self.pos))
-				self.advance()
 			elif self.current_char=="!":
 				tok,error=self.make_not_equals()
 				if error:
