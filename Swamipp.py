@@ -171,8 +171,8 @@ class Lexer:
 			elif self.current_char=='"':
 				tokens.append(self.make_string())
 				self.advance()
-			elif self.current_char in token_lookup:
-				tokens.append(Token(token_lookup[self.current_char], pos_start=self.pos))
+			elif self.current_char in self.token_lookup:
+				tokens.append(Token(self.token_lookup[self.current_char], pos_start=self.pos))
 				self.advance()
 			elif self.current_char=="#":
 				self.skip_comment()
