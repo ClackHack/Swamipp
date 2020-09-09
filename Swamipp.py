@@ -1,4 +1,5 @@
-import random,time
+import random,time,requests
+from bs4 import BeautifulSoup
 #Tokens
 TT_INT="TT_INT"
 TT_FLOAT="FLOAT"
@@ -1659,7 +1660,40 @@ class BuiltInFunction(BaseFunction):
 		return RTResult().success(Number.null)
 	execute_sleep.arg_names=["value"]
 	execute_random.arg_names=["lower","upper"]
-
+	def execute_request(self,exec_ctx):
+		website=exec_ctx.symbol_table.get("web")
+		if not (isinstance(website,String)):
+			return  RTResult().failure(RTError(self.pos_start,self.pos_end,"expected String",exec_ctx))
+		try:
+			page=requests.get(website.value)
+		except Exception as e:
+			#print(e)
+			return  RTResult().failure(RTError(self.pos_start,self.pos_end,"Unable to load website",exec_ctx))
+		try:
+			soup=BeautifulSoup(page.content,"html.parser")
+		except:
+			return  RTResult().failure(RTError(self.pos_start,self.pos_end,"Unable to parse page",exec_ctx))
+		return RTResult().success(String(soup.text))
+	execute_request.arg_names=["web"]
+	def execute_requestGet(self,exec_ctx):
+		website=exec_ctx.symbol_table.get("web")
+		type_=exec_ctx.symbol_table.get("t")
+		iden=exec_ctx.symbol_table.get("i")
+		name=exec_ctx.symbol_table.get("name")
+		if not (isinstance(website,String) and isinstance(type_,String) and isinstance(name,String)):
+			return  RTResult().failure(RTError(self.pos_start,self.pos_end,"expected String",exec_ctx))
+		try:
+			page=requests.get(website)
+		except Exception as e:
+			#print(e)
+			return  RTResult().failure(RTError(self.pos_start,self.pos_end,"Unable to load website",exec_ctx))
+		try:
+			soup=BeautifulSoup(page.content,"html.parser")
+			r=soup.find(type_.value,{iden.value:name.value})
+		except:
+			return  RTResult().failure(RTError(self.pos_start,self.pos_end,"Unable to parse page",exec_ctx))
+		return RTResult().success(String(r.text))
+	execute_requestGet.arg_names=["web","t","i","name"]
 	def copy(self):
 		copy=BuiltInFunction(self.name)
 		copy.set_context(self.context)
@@ -1688,6 +1722,8 @@ BuiltInFunction.random=BuiltInFunction("random")
 BuiltInFunction.sleep=BuiltInFunction("sleep")
 BuiltInFunction.copy_=BuiltInFunction("copy")
 BuiltInFunction.type=BuiltInFunction("type")
+BuiltInFunction.request=BuiltInFunction("request")
+BuiltInFunction.requestGet=BuiltInFunction("requestGet")
 class String(Value):
 	def __init__(self,value):
 		self.value=value
@@ -2145,6 +2181,8 @@ global_symbol_table.set("randint",BuiltInFunction.random)
 global_symbol_table.set("sleep",BuiltInFunction.sleep)
 global_symbol_table.set("copy",BuiltInFunction.copy_)
 global_symbol_table.set("type",BuiltInFunction.type)
+global_symbol_table.set("request",BuiltInFunction.request)
+global_symbol_table.set("requestGet",BuiltInFunction.requestGet)
 def run(fn, text):
 	lexer=Lexer(fn, text)
 	tokens,error=lexer.make_tokens()
