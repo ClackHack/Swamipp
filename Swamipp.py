@@ -1690,9 +1690,13 @@ class BuiltInFunction(BaseFunction):
 		try:
 			soup=BeautifulSoup(page.content,"html.parser")
 			r=soup.find(type_.value,{iden.value:name.value})
+
 		except:
 			return  RTResult().failure(RTError(self.pos_start,self.pos_end,"Unable to parse page",exec_ctx))
-		return RTResult().success(String(r.text))
+		try:
+			return RTResult().success(String(r.text))
+		except:
+			return  RTResult().failure(RTError(self.pos_start,self.pos_end,"Unable to find element",exec_ctx))
 	execute_requestGet.arg_names=["web","t","i","name"]
 	def copy(self):
 		copy=BuiltInFunction(self.name)
@@ -2136,7 +2140,7 @@ class Interpreter:
 		try:
 			return_value=res.register(value_to_call.execute(args))
 		except Exception as e:
-			#print(e)
+			print(e)
 			return res.failure(RTError(node.pos_start,node.pos_end,f"Wrap function in parentheses",context))
 		if res.should_return():
 			return res
