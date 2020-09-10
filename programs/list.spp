@@ -1,0 +1,40 @@
+func map(f,l)
+let out = l /0
+let skip = true
+for i each l then
+if skip then
+let skip = false
+continue
+end
+let out = f(out,i)
+end
+return out
+end
+func range(start,nd)
+let out=[]
+for i=start to nd then
+append(out,i)
+end
+return out
+end
+func indexOf(l,value)
+for i=0 to len(l) then
+if value ==(l/i) then return i
+end
+return -1
+end
+func subString(s,lower,upper)
+let l = list(s)
+let out = []
+for i=lower to upper then
+append(out, l/s)
+end
+return join("",out)
+end
+func join(value,l)
+let out = l/0
+for i=1 to len(l) then
+let out=out+value+l/i
+end
+return out
+end
