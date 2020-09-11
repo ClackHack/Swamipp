@@ -1,4 +1,4 @@
-import random,time,requests
+import random,time,requests,os
 from bs4 import BeautifulSoup
 #Tokens
 TT_INT="TT_INT"
@@ -1230,11 +1230,11 @@ class Value:
 	def dotted_to(self,other):
 		return None, self.illegal_operation(other)
 	def notted(self):
-		return None,self.illegal_operation(other)
+		return None,self.illegal_operation()
 	def copy(self):
 		raise Exception("Copy Method Not Specified")
 	def is_true(self):
-		return None,self.illegal_operation(other)
+		return None,self.illegal_operation()
 	def illegal_operation(self,other=None):
 		if not other:other=self
 		return RTError(self.pos_start,other.pos_end,"Illegal Operation",self.context)
@@ -1722,8 +1722,40 @@ class BuiltInFunction(BaseFunction):
 			args = [String(i) for i in value.arg_names]
 			return RTResult().success(List(args))
 		return  RTResult().failure(RTError(self.pos_start,self.pos_end,"Expected Function or Class",exec_ctx))
-
 	execute_args.arg_names=["value"]
+	def execute_os(self,exec_ctx):
+		command = exec_ctx.symbol_table.get("command")
+		if not isinstance(command,String):
+			return RTResult().failure(RTError(self.pos_start,self.pos_end,"Expected String",exec_ctx))
+		try:
+			os.system(command.value)
+		except:
+			return  RTResult().failure(RTError(self.pos_start,self.pos_end,"OS error",exec_ctx))
+		return RTResult().success(Number.null)
+	execute_os.arg_names = ["command"]
+	def execute_read(self,exec_ctx):
+		f=exec_ctx.symbol_table.get("file")
+		if not isinstance(f,String):
+			return RTResult().failure(RTError(self.pos_start,self.pos_end,"Expected String",exec_ctx))
+		try:
+			r = open(f.value,"r").read()
+			return RTResult().success(String(r))
+		except:
+			return  RTResult().failure(RTError(self.pos_start,self.pos_end,"Could not load file",exec_ctx))
+	execute_read.arg_names=["file"]
+	def execute_write(self,exec_ctx):
+		f=exec_ctx.symbol_table.get("file")
+		text = exec_ctx.symbol_table.get("text")
+		if not isinstance(f,String):
+			return RTResult().failure(RTError(self.pos_start,self.pos_end,"Expected String for first arg",exec_ctx))
+		if not isinstance(text,String):
+			return RTResult().failure(RTError(self.pos_start,self.pos_end,"Expexted String for second arg",exec_ctx))
+		try:
+			open(f.value,"w").read(text.value)
+			return RTResult().success(Number.null)
+		except:
+			return  RTResult().failure(RTError(self.pos_start,self.pos_end,"Could write to file",exec_ctx))
+	execute_write.arg_names=["file","text"]
 	def copy(self):
 		copy=BuiltInFunction(self.name)
 		copy.set_context(self.context)
@@ -1756,6 +1788,9 @@ BuiltInFunction.request=BuiltInFunction("request")
 BuiltInFunction.requestGet=BuiltInFunction("requestGet")
 BuiltInFunction.variables=BuiltInFunction("variables")
 BuiltInFunction.args=BuiltInFunction("args")
+BuiltInFunction.os=BuiltInFunction("os")
+BuiltInFunction.read=BuiltInFunction("read")
+BuiltInFunction.write=BuiltInFunction("write")
 class String(Value):
 	def __init__(self,value):
 		self.value=value
@@ -2217,6 +2252,9 @@ global_symbol_table.set("request",BuiltInFunction.request)
 global_symbol_table.set("requestGet",BuiltInFunction.requestGet)
 global_symbol_table.set("variables",BuiltInFunction.variables)
 global_symbol_table.set("args",BuiltInFunction.args)
+global_symbol_table.set("os",BuiltInFunction.os)
+global_symbol_table.set("read",BuiltInFunction.read)
+global_symbol_table.set("write",BuiltInFunction.write)
 def run(fn, text):
 	lexer=Lexer(fn, text)
 	tokens,error=lexer.make_tokens()
