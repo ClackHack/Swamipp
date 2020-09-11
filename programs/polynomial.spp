@@ -1,0 +1,14 @@
+class quadratic(a,b,c)
+func eval(x)
+return a*x^2 + b*x + c
+end
+end
+class polynomial(coef)
+func eval(x)
+let out=0
+for i =0 to len(coef) then
+let out = out + (coef/i) * x^(len(coef)-1-i)
+end
+return out
+end
+end

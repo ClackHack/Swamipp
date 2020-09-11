@@ -1,3 +1,4 @@
+
 import random,time,requests,os
 from bs4 import BeautifulSoup
 #Tokens
@@ -1729,7 +1730,7 @@ class BuiltInFunction(BaseFunction):
 			return RTResult().failure(RTError(self.pos_start,self.pos_end,"Expected String",exec_ctx))
 		try:
 			os.system(command.value)
-		except:
+		except Exception as e:
 			return  RTResult().failure(RTError(self.pos_start,self.pos_end,"OS error",exec_ctx))
 		return RTResult().success(Number.null)
 	execute_os.arg_names = ["command"]
@@ -1751,7 +1752,7 @@ class BuiltInFunction(BaseFunction):
 		if not isinstance(text,String):
 			return RTResult().failure(RTError(self.pos_start,self.pos_end,"Expexted String for second arg",exec_ctx))
 		try:
-			open(f.value,"w").read(text.value)
+			open(f.value,"w").write(text.value)
 			return RTResult().success(Number.null)
 		except:
 			return  RTResult().failure(RTError(self.pos_start,self.pos_end,"Could write to file",exec_ctx))
