@@ -1698,6 +1698,32 @@ class BuiltInFunction(BaseFunction):
 		except:
 			return  RTResult().failure(RTError(self.pos_start,self.pos_end,"Unable to find element",exec_ctx))
 	execute_requestGet.arg_names=["web","t","i","name"]
+	def execute_variables(self,exec_ctx):
+		ctx=exec_ctx
+		out=[]
+		while 1:
+			out.extend(ctx.symbol_table.symbols.keys())
+			if  ctx.parent:
+				ctx=ctx.parent
+			else:
+				break
+		out = [String(i) for i in out]
+		return RTResult().success(List(out))
+	execute_variables.arg_names=[]
+	def execute_args(self,exec_ctx):
+		value = exec_ctx.symbol_table.get("value")
+		if isinstance(value,BuiltInFunction):
+			method_name=f'execute_{value.name}'
+			method = getattr(self,method_name,self.no_visit_method)
+			args=method.arg_names
+			args = [String(i) for i in args]
+			return RTResult().success(List(args))
+		if  isinstance(value,BaseFunction):
+			args = [String(i) for i in value.arg_names]
+			return RTResult().success(List(args))
+		return  RTResult().failure(RTError(self.pos_start,self.pos_end,"Expected Function or Class",exec_ctx))
+
+	execute_args.arg_names=["value"]
 	def copy(self):
 		copy=BuiltInFunction(self.name)
 		copy.set_context(self.context)
@@ -1728,6 +1754,8 @@ BuiltInFunction.copy_=BuiltInFunction("copy")
 BuiltInFunction.type=BuiltInFunction("type")
 BuiltInFunction.request=BuiltInFunction("request")
 BuiltInFunction.requestGet=BuiltInFunction("requestGet")
+BuiltInFunction.variables=BuiltInFunction("variables")
+BuiltInFunction.args=BuiltInFunction("args")
 class String(Value):
 	def __init__(self,value):
 		self.value=value
@@ -2187,6 +2215,8 @@ global_symbol_table.set("copy",BuiltInFunction.copy_)
 global_symbol_table.set("type",BuiltInFunction.type)
 global_symbol_table.set("request",BuiltInFunction.request)
 global_symbol_table.set("requestGet",BuiltInFunction.requestGet)
+global_symbol_table.set("variables",BuiltInFunction.variables)
+global_symbol_table.set("args",BuiltInFunction.args)
 def run(fn, text):
 	lexer=Lexer(fn, text)
 	tokens,error=lexer.make_tokens()
