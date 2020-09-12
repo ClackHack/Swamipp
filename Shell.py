@@ -22,7 +22,7 @@ if args.file:
   sys.exit()
 def begin(s,r):
   return s[:len(r)]==r
-print("Swami++ 2.4.1, type credits for more info")
+print("Swami++ 2.5.1, type credits for more info")
 directory="C:/Swamipp/Programs/"
 def notepad(f):
     os.system("notepad.exe "+directory+f)
@@ -35,6 +35,9 @@ while 1:
         print("Developed By ClackHack, inspired by CodePulse")
     elif begin(command,"file "):
         f=command.replace("file ","")
+        if not f.endswith(".spp"):
+            print("Expected .spp file")
+            continue
         try:
             open(directory+f,"r").read()
         except:
