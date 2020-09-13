@@ -132,7 +132,7 @@ class Token:
 	def matches(self,type_,value):
 		return self.type==type_ and self.value==value
 	def __repr__(self):
-		if self.value: return f"{self.type}:{self.value}"
+		if self.value != None: return f"{self.type}:{self.value}"
 		return f"{self.type}"
 class Lexer:
 	token_lookup = {
@@ -211,6 +211,7 @@ class Lexer:
 			else:
 				num+=self.current_char
 			self.advance()
+		#print(num)
 		if dot_count==0:
 			return Token(TT_INT,int(num),pos_start,self.pos)
 		else:
@@ -721,7 +722,14 @@ class Parser:
 			res.register_advance()
 			self.advance()
 			right=res.register(func_b())
+			#print(func)
+			#print(left,right)
+			#print(type(left))			
 			left=BiOpNode(left,op_tok,right)
+			try:
+				inops=(self.current_tok.type,self.current_tok.value) in ops
+			except:
+				pass
 		return res.success(left)
 	def list_expr(self):
 		#print("Called")
@@ -2254,7 +2262,7 @@ def run(fn, text):
 	tokens,error=lexer.make_tokens()
 	if error:
 		return None,error
-	#print(tokens[-10:])
+	#print(tokens[:])
 	parser=Parser(tokens)
 	ast=parser.parse()
 	if ast.error:
