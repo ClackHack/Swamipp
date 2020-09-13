@@ -1,6 +1,7 @@
-
 import random,time,requests,os, datetime
+from colorama import Fore,Style, init
 from bs4 import BeautifulSoup
+init()
 #Tokens
 TT_INT="TT_INT"
 TT_FLOAT="FLOAT"
@@ -2257,6 +2258,15 @@ global_symbol_table.set("read",BuiltInFunction.read)
 global_symbol_table.set("write",BuiltInFunction.write)
 global_symbol_table.set("time",BuiltInFunction.time)
 global_symbol_table.set("error",BuiltInFunction.error)
+global_symbol_table.set("RED",String(Fore.RED))
+global_symbol_table.set("BLUE",String(Fore.BLUE))
+global_symbol_table.set("GREEN",String(Fore.GREEN))
+global_symbol_table.set("RESET",String(Style.RESET_ALL))
+global_symbol_table.set("YELLOW",String(Fore.YELLOW))
+global_symbol_table.set("MAGENTA",String(Fore.MAGENTA))
+global_symbol_table.set("CYAN",String(Fore.CYAN))
+global_symbol_table.set("WHITE",String(Fore.WHITE))
+global_symbol_table.set("BLACK",String(Fore.BLACK))
 def run(fn, text):
 	lexer=Lexer(fn, text)
 	tokens,error=lexer.make_tokens()
