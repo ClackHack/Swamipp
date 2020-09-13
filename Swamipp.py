@@ -1572,7 +1572,7 @@ class BuiltInFunction(BaseFunction):
 			ret=r.name
 		else:
 			ret=r.type_()
-		return RTResult().success(Number(String(ret)))
+		return RTResult().success(String(ret))
 	execute_type.arg_names=["value"]
 	execute_is_list.arg_names=["value"]
 	def execute_append(self,exec_ctx):
