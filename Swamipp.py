@@ -1762,6 +1762,12 @@ class BuiltInFunction(BaseFunction):
 		#print(now.strftime("%Y/%m/%d/%h/%M/%S"))
 		return RTResult().success(List([Number(int(i)) for i in now.strftime("%Y/%m/%d/%H/%M/%S").split("/")]))
 	execute_time.arg_names=[]
+	def execute_error(self,exec_ctx):
+		msg = exec_ctx.symbol_table.get("msg")
+		if not isinstance(msg,String):
+			return RTResult().failure(RTError(self.pos_start,self.pos_end,"Expected String",exec_ctx))
+		return RTResult().failure(RTError(self.pos_start,self.pos_end,msg.value,exec_ctx))
+	execute_error.arg_names=["msg"]
 	def copy(self):
 		copy=BuiltInFunction(self.name)
 		copy.set_context(self.context)
@@ -1798,6 +1804,7 @@ BuiltInFunction.os=BuiltInFunction("os")
 BuiltInFunction.read=BuiltInFunction("read")
 BuiltInFunction.write=BuiltInFunction("write")
 BuiltInFunction.time=BuiltInFunction("time")
+BuiltInFunction.error=BuiltInFunction("error")
 class String(Value):
 	def __init__(self,value):
 		self.value=value
@@ -2263,6 +2270,7 @@ global_symbol_table.set("os",BuiltInFunction.os)
 global_symbol_table.set("read",BuiltInFunction.read)
 global_symbol_table.set("write",BuiltInFunction.write)
 global_symbol_table.set("time",BuiltInFunction.time)
+global_symbol_table.set("error",BuiltInFunction.error)
 def run(fn, text):
 	lexer=Lexer(fn, text)
 	tokens,error=lexer.make_tokens()
