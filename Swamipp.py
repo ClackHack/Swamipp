@@ -1,5 +1,5 @@
 
-import random,time,requests,os
+import random,time,requests,os, datetime
 from bs4 import BeautifulSoup
 #Tokens
 TT_INT="TT_INT"
@@ -1757,6 +1757,11 @@ class BuiltInFunction(BaseFunction):
 		except:
 			return  RTResult().failure(RTError(self.pos_start,self.pos_end,"Could write to file",exec_ctx))
 	execute_write.arg_names=["file","text"]
+	def execute_time(self,exec_ctx):
+		now = datetime.datetime.now()
+		#print(now.strftime("%Y/%m/%d/%h/%M/%S"))
+		return RTResult().success(List([Number(int(i)) for i in now.strftime("%Y/%m/%d/%H/%M/%S").split("/")]))
+	execute_time.arg_names=[]
 	def copy(self):
 		copy=BuiltInFunction(self.name)
 		copy.set_context(self.context)
@@ -1792,6 +1797,7 @@ BuiltInFunction.args=BuiltInFunction("args")
 BuiltInFunction.os=BuiltInFunction("os")
 BuiltInFunction.read=BuiltInFunction("read")
 BuiltInFunction.write=BuiltInFunction("write")
+BuiltInFunction.time=BuiltInFunction("time")
 class String(Value):
 	def __init__(self,value):
 		self.value=value
@@ -2241,7 +2247,7 @@ global_symbol_table.set("is_function",BuiltInFunction.is_function)
 global_symbol_table.set("append",BuiltInFunction.append)
 global_symbol_table.set("pop",BuiltInFunction.pop)
 global_symbol_table.set("extend",BuiltInFunction.extend)
-global_symbol_table.set("pi",Number(3.141592358))
+global_symbol_table.set("pi",Number(3.14159265358979323846))
 global_symbol_table.set("println",BuiltInFunction.println)
 global_symbol_table.set("import",BuiltInFunction.import_)
 global_symbol_table.set("len",BuiltInFunction.len)
@@ -2256,6 +2262,7 @@ global_symbol_table.set("args",BuiltInFunction.args)
 global_symbol_table.set("os",BuiltInFunction.os)
 global_symbol_table.set("read",BuiltInFunction.read)
 global_symbol_table.set("write",BuiltInFunction.write)
+global_symbol_table.set("time",BuiltInFunction.time)
 def run(fn, text):
 	lexer=Lexer(fn, text)
 	tokens,error=lexer.make_tokens()
