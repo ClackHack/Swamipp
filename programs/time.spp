@@ -1,0 +1,24 @@
+import("C:/swamipp/Programs/math.spp")
+class Time(t)
+	if len(t) != 6 then
+		error("Expected time object")
+	end
+	let year = t/0
+	let month = t/1
+	let day = t/2
+	let hour = t/3
+	let minute = t/4
+	let second = t/5
+	if in([11,4,6,9],t/1) then
+		let month_days=30
+	elif t/1 != 2 then
+		let month_days=31
+	else
+		let month_days=28
+	end
+	let absolute = (t/5)+(t/4)*60+(t/3)*3600+(t/2)*86400+(t/1)*86400*month_days+(t/0)*31536000
+	func delta(other)
+		if not type(other)=="Time" then error("Expected 'time' type")
+		return absolute - other.absolute
+	end
+end
