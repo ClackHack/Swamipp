@@ -38,3 +38,14 @@ let out=out+value+l/i
 end
 return out
 end
+func insert(l,value,pos)
+let a=[]
+let b=[]
+for i=0 to pos then
+let a = a * (l/i)
+end
+for i=pos to len(l) then
+let b = b * (l/i)
+end
+return a + [value] + b
+end
