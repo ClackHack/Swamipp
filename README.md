@@ -1,3 +1,8 @@
+# Need Help?
+
+visit r/swamipp for assistance or to share what you made
+
+
 # Swamipp
  Swami++ is a mid-high level programming language written in python!
  
