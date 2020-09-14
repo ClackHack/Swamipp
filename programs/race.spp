@@ -1,0 +1,82 @@
+import("C:/swamipp/Programs/list.spp")
+import("C:/swamipp/Programs/random.spp")
+func printRace(r,w,color)
+	let colors=[RED,GREEN,CYAN,MAGENTA,BLUE,YELLOW,WHITE]
+	if not color then
+		println("-"*(w+4))
+		for i=0 to len(r) then
+			print(string(i+1)+ ": ")
+			print(r/i)
+			print(" "*(w-len(r/i)))
+			println("|")
+			println("-"*(w+4))
+		end
+	else
+		for i=0 to len(r) then
+			print(colors/i)
+			print(string(i+1)+ ": ")
+			print(r/i)
+			print(RESET)
+			print(" "*(w-len(r/i)))
+			println("|")
+			
+			println("-"*(w+4))
+		end
+	end
+end
+func raceStep(r,inten)
+for i=0 to len(r) then
+#let q = choice(["o","oo","ooo","oooo"])
+let q = "o"*randint(1,inten)
+let r = set(r,(r/i)+q,i)
+end
+return r
+end
+func win(r,w)
+let e = false
+for i each r then
+if len(i)>=w then let e = true
+end
+return e
+end
+func race(width,players,inten,color)
+	let r = []
+	for i=0 to players then
+		let r = r*""
+	end
+	if (color and (players > 7)) then
+		error("Max 7 playes with color mode")
+	end
+	while true then
+		os("cls")
+		let r = raceStep(r,inten)
+		printRace(r,width,color)
+		sleep(0.5)
+		if win(r,width) then break
+	end
+	println("Calculating results...")
+	let max=0
+	let winner = [0]
+	#println(r)
+	for i=0 to len(r) then
+		#println(r/i)
+		#println(len(r/i))
+		if (len(r/i))>max then 
+			let max = len(r/i)
+			let winner = [i]
+		elif len(r/i)==max then
+			let winner = winner*i
+		end
+		
+	end
+	if len(winner)==1 then
+		println(string((winner/0)+1)+" wins!!!")
+	else
+		print("Tie bewtween ")
+		for i each winner then
+			print(string(i+1)+" ")
+		end
+		println("")
+	end
+end
+
