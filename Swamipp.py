@@ -1408,6 +1408,7 @@ class Class(BaseFunction):
 		res=RTResult()
 		interpreter=Interpreter()
 		self.exec_ctx=self.generate_new_context()
+		self.exec_ctx.symbol_table.set("this",self)
 		res.register(self.check_and_populate_args(self.arg_names,args,self.exec_ctx))
 		if res.should_return():
 			return res
