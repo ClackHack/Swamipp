@@ -1,0 +1,71 @@
+import("C:/swamipp/programs/math.spp")
+import("C:/swamipp/programs/list.spp")
+import("C:/swamipp/programs/random.spp")
+class team(name, offense, defense)
+	let points = 0
+	if (offense > 5 or defense > 5) then 
+		error("Expected bias 1-5")
+	end
+	func score(p)
+		return let this.points = this.points + p
+	end
+	func reset()
+		let this.points = 0
+	end
+end
+class game(a,b)
+	print(a.name);print(" vs. ");println(b.name)
+	func simQuarter()
+		let da = randint(1,2)
+		let db = randint(1,2)
+		
+		for i=0 to max([da,db]) then
+			if da>0 then
+				sleep(1)
+				#print("boop")
+				let chance = randint(1,8-a.offense+b.defense)
+				if in([1,2,3],chance) then
+					(a.score)(7)
+					println("Touchdown team "+a.name+"!!!")
+				elif in([4,5],chance) then
+					(a.score)(3)
+					println("Field goal team "+a.name+"!!!")
+				end
+				let da = da-1
+			end	
+			if db>0 then
+				sleep(1)
+				let chance = randint(1,8-b.offense+a.defense)
+				if in([1,2,3],chance) then
+					(b.score)(7)
+					println("Touchdown team "+b.name+"!!!")
+				elif in([4,5],chance) then
+					(b.score)(3)
+					println("Field goal team "+b.name+"!!!")
+				end
+				let db = db-1
+				
+			end
+		end
+	end
+	func play()
+		let q = 4
+		for i=1 to q+1 then
+			sleep(2)
+			println("Quarter "+string(i))
+			simQuarter()
+			println(string(a.points)+" - "+string(b.points))
+			println("\n")
+		end
+		println("Game over")
+		if a.points == b.points then
+			println("Tie")
+		elif a.points > b.points then
+			println(a.name+" wins!")
+		else
+			println(b.name+" wins!")
+		end
+	end
+
+end
+
