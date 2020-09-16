@@ -1686,7 +1686,29 @@ class BuiltInFunction(BaseFunction):
 			return RTResult().success(String(r.text))
 		except:
 			return  RTResult().failure(RTError(self.pos_start,self.pos_end,"Unable to find element",exec_ctx))
+	def execute_requestAll(self,exec_ctx):
+		website=exec_ctx.symbol_table.get("web")
+		type_=exec_ctx.symbol_table.get("t")
+		
+		if not (isinstance(website,String) and isinstance(type_,String)):
+			return  RTResult().failure(RTError(self.pos_start,self.pos_end,"expected String",exec_ctx))
+		try:
+			page=requests.get(website)
+		except Exception as e:
+			#print(e)
+			return  RTResult().failure(RTError(self.pos_start,self.pos_end,"Unable to load website",exec_ctx))
+		try:
+			soup=BeautifulSoup(page.content,"html.parser")
+			r=soup.find_all(type_.value)
+
+		except:
+			return  RTResult().failure(RTError(self.pos_start,self.pos_end,"Unable to parse page",exec_ctx))
+		try:
+			return RTResult().success(List([String(i.text) for i in r]))
+		except:
+			return  RTResult().failure(RTError(self.pos_start,self.pos_end,"Unable to find element",exec_ctx))
 	execute_requestGet.arg_names=["web","t","i","name"]
+	execute_requestAll.arg_names=["web","t"]
 	def execute_variables(self,exec_ctx):
 		ctx=exec_ctx
 		out=[]
@@ -1786,6 +1808,7 @@ BuiltInFunction.copy_=BuiltInFunction("copy")
 BuiltInFunction.type=BuiltInFunction("type")
 BuiltInFunction.request=BuiltInFunction("request")
 BuiltInFunction.requestGet=BuiltInFunction("requestGet")
+BuiltInFunction.requestAll=BuiltInFunction("requestAll")
 BuiltInFunction.variables=BuiltInFunction("variables")
 BuiltInFunction.args=BuiltInFunction("args")
 BuiltInFunction.os=BuiltInFunction("os")
@@ -2252,6 +2275,7 @@ global_symbol_table.set("copy",BuiltInFunction.copy_)
 global_symbol_table.set("type",BuiltInFunction.type)
 global_symbol_table.set("request",BuiltInFunction.request)
 global_symbol_table.set("requestGet",BuiltInFunction.requestGet)
+global_symbol_table.set("requestAll",BuiltInFunction.requestAll)
 global_symbol_table.set("variables",BuiltInFunction.variables)
 global_symbol_table.set("args",BuiltInFunction.args)
 global_symbol_table.set("os",BuiltInFunction.os)
