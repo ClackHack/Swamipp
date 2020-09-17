@@ -22,7 +22,7 @@ if args.file:
   sys.exit()
 def begin(s,r):
   return s[:len(r)]==r
-print("Swami++ 2.8.1, type credits for more info")
+print("Swami++ 2.9.1, type credits for more info")
 directory="C:/Swamipp/Programs/"
 def notepad(f):
     os.system("notepad.exe "+directory+f)
@@ -55,6 +55,22 @@ while 1:
                 print(error.toString(),sep="\n")
             else:
                 print(f"\nExecuted with zero errors in {(x-y).total_seconds()} seconds")
+        except KeyboardInterrupt:
+          continue
+        except Exception as e:
+            print("Could not find file, or fatal error...",e)
+    elif begin(command,"build "):
+        f = command.replace("build ","")
+        try:
+            code=open(directory+f,"r").read()
+            y=datetime.datetime.now()
+            result,error=Swami.build(f,code)
+            x=datetime.datetime.now()
+            if error:
+                print(error.toString(),sep="\n")
+            else:
+                print(result.node)
+                print(f"\nBuilt with zero errors in {(x-y).total_seconds()} seconds")
         except KeyboardInterrupt:
           continue
         except Exception as e:

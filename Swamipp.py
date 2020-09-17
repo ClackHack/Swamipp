@@ -304,7 +304,7 @@ class BiOpNode:
 		self.pos_start=left.pos_start
 		self.pos_end=right.pos_end
 	def __repr__(self):
-		return f"({self.left}, {self.op}, {self.right})"
+		return f"({self.left}, {self.op.type}, {self.right})"
 class UnOpNode:
 	def __init__(self,op,node):
 		self.op=op
@@ -318,12 +318,16 @@ class VarAccessNode:
 		self.var_name_tok=tok
 		self.pos_start=tok.pos_start
 		self.pos_end=tok.pos_end
+	def __repr__(self):
+		return f"<Access {self.var_name_tok.value}>"
 class VarAssignNode:
 	def __init__(self,tok,node):
 		self.var_name_tok=tok
 		self.value_node=node
 		self.pos_start=tok.pos_start
 		self.pos_end=tok.pos_end
+	def __repr__(self):
+		return f"<Assign {self.var_name_tok.value}={self.value_node}>"
 class ClassAssignNode:
 	def __init__(self,tok,child,node):
 		self.var=tok
@@ -331,6 +335,8 @@ class ClassAssignNode:
 		self.value_node=node
 		self.pos_start=tok.pos_start
 		self.pos_end=tok.pos_end
+	def __repr__(self):
+		return f"<Class {self.var.value}>"
 class IfNode:
 	def __init__(self,cases,_else):
 		self.cases=cases
@@ -339,6 +345,8 @@ class IfNode:
 		self.pos_end=(self._else or self.cases[len(self.cases)-1])[0].pos_end
 
 		self.pos_start=cases[0][0].pos_start
+	def __repr__(self):
+		return f"if <{self.cases} else {self._else}>"
 class ForNode:
 	def __init__(self,var_name_tok,start_value_node,end_value_node,step_value_node,body_node,should_return_null):
 		self.var_name_tok=var_name_tok
@@ -349,6 +357,8 @@ class ForNode:
 		self.pos_start=var_name_tok.pos_start
 		self.pos_end=body_node.pos_end
 		self.should_return_null=should_return_null
+	def __repr__(self):
+		return f"<For node {self.body_node}>"
 class WhileNode:
 	def __init__(self,condition_node,body_node,should_return_null):
 		self.condition_node=condition_node
@@ -356,6 +366,8 @@ class WhileNode:
 		self.pos_start=condition_node.pos_start
 		self.pos_end=body_node.pos_end
 		self.should_return_null=should_return_null
+	def __repr__(self):
+		return f"<While node {self.body_node}>"
 class ForEachNode:
 	def __init__(self,var_name_tok,iterator_node,body_node,should_return_null):
 		self.var_name_tok=var_name_tok
@@ -364,6 +376,8 @@ class ForEachNode:
 		self.pos_start=var_name_tok.pos_start
 		self.pos_end=body_node.pos_end
 		self.should_return_null=should_return_null
+	def __repr__(self):
+		return f"<For Each node {self.body_node}>"
 class DoNode:
 	def __init__(self,condition_node,body_node,should_return_null):
 		self.condition_node=condition_node
@@ -371,6 +385,8 @@ class DoNode:
 		self.pos_start=condition_node.pos_start
 		self.pos_end=body_node.pos_end
 		self.should_return_null=should_return_null
+	def __repr__(self):
+		return f"<Do node {self.body_node}>"
 class FuncDefNode:
 	def __init__(self,var_name_tok,arg_name_toks, body_node,should_auto_return):
 		self.var_name_tok=var_name_tok
@@ -384,6 +400,8 @@ class FuncDefNode:
 		else:
 			self.pos_start=body_node.pos_start
 		self.pos_end=body_node.pos_end
+	def __repr__(self):
+		return f"<Function node {self.body_node}>"
 class ClassDefNode:
 	def __init__(self,var_name_tok,arg_name_toks,body_node):
 		self.var_name_tok=var_name_tok
@@ -391,19 +409,27 @@ class ClassDefNode:
 		self.body_node=body_node
 		self.pos_start=var_name_tok.pos_start
 		self.pos_end=body_node.pos_end
+	def __repr__(self):
+		return f"<Class node {self.body_node}>"
 class ReturnNode:
 	def __init__(self,node_to_return,pos_start,pos_end):
 		self.node_to_return=node_to_return
 		self.pos_start=pos_start
 		self.pos_end=pos_end
+	def __repr__(self):
+		return f"<Return {self.node_to_return}>"
 class ContinueNode:
 	def __init__(self,pos_start,pos_end):
 		self.pos_start=pos_end
 		self.pos_end=pos_end
+	def __repr__(self):
+		return f"<Continue>"
 class BreakNode:
 	def __init__(self,pos_start,pos_end):
 		self.pos_start=pos_end
 		self.pos_end=pos_end
+	def __repr__(self):
+		return f"<Break"
 class CallNode:
 	def __init__(self,node_to_call,arg_nodes):
 		self.node_to_call=node_to_call
@@ -413,11 +439,15 @@ class CallNode:
 			self.pos_end=arg_nodes[0].pos_end
 		else:
 			self.pos_end=node_to_call.pos_end
+	def __repr__(self):
+		return f"<Call {self.node_to_call}>"
 class ListNode:
 	def __init__(self,element,pos_start,pos_end):
 		self.element_nodes=element
 		self.pos_start=pos_start
 		self.pos_end=pos_end
+	def __repr__(self):
+		return f"<List {self.element_nodes}>"
 class ParseResult:
 	def __init__(self):
 		self.error=None
@@ -2309,3 +2339,17 @@ def run(fn, text):
 	result=interpreter.visit(ast.node,context)
 
 	return result.value,result.error
+def build(fn, text):
+	lexer=Lexer(fn, text)
+	tokens,error=lexer.make_tokens()
+	if error:
+		return None,error
+	#print(tokens[:])
+	parser=Parser(tokens)
+	ast=parser.parse()
+	if ast.error:
+		return None,ast.error
+	#print(ast)
+	return ast,None
+
+	#return result.value,result.error
