@@ -22,7 +22,7 @@ if args.file:
   sys.exit()
 def begin(s,r):
   return s[:len(r)]==r
-print("Swami++ 2.9.1, type credits for more info")
+print("Swami++ 2.9.2, type credits for more info")
 directory="C:/Swamipp/Programs/"
 def notepad(f):
     os.system("notepad.exe "+directory+f)

@@ -755,7 +755,10 @@ class Parser:
 			right=res.register(func_b())
 			#print(func)
 			#print(left,right)
-			#print(type(left))			
+			#print(type(left))
+			if right==None:
+				return res.failure(InvalidSyntaxError(self.current_tok.pos_start,self.current_tok.pos_end,
+			"Expected Operator"))			
 			left=BiOpNode(left,op_tok,right)
 			try:
 				inops=(self.current_tok.type,self.current_tok.value) in ops
