@@ -22,3 +22,5 @@ if args.file:
   else:
       input("Press 'enter' to exit...")
   sys.exit()
+else:
+  print("Fatal Error: No File Input")

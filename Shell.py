@@ -2,6 +2,7 @@ import Swamipp as Swami
 import os,datetime
 import _thread, sys
 import argparse
+#sys.setrecursionlimit(10000)
 parser = argparse.ArgumentParser(description="Swami++")
 parser.add_argument("file",nargs="?",type=str,help="file to be executed",default="")
 args=parser.parse_args()
@@ -22,7 +23,7 @@ if args.file:
   sys.exit()
 def begin(s,r):
   return s[:len(r)]==r
-print("Swami++ 2.9.2, type credits for more info")
+print("Swami++ 2.9.3, type credits for more info")
 directory="C:/Swamipp/Programs/"
 def notepad(f):
     os.system("notepad.exe "+directory+f)
